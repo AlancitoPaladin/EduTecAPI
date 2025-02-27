@@ -18,4 +18,5 @@ def courses():
          "Image": "https://www.azulschool.net/wp-content/uploads/2020/05/Databasse-Administrator-1024x709.jpg",
          "Stars": 4.4}
     ]
+
     return jsonify(Courses)
