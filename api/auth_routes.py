@@ -19,6 +19,4 @@ def register():
     email = data.get['email']
     password = data.get['password']
 
-    collection = mongo.db.myCollection
-
     pass
