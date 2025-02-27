@@ -1,28 +1,16 @@
-from flask import Flask
+import os
+import configparser
+from api.factory import create_app
 
-app = Flask(__name__)
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.ini")
 
+config = configparser.ConfigParser()
+config.read(CONFIG_PATH)
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
+app = create_app()
 
+app.config["DEBUG"] = True
+app.config["MONGO_URI"] = config.get("PROD", "DB_URI", fallback="mongodb://localhost:27017/default_db")
 
-@app.route('/courses')
-def courses():
-    Courses = [
-        {"Course": "Ingeniería de Software", "Duration": "Feb-Junio 2025", "Teacher": "Alan Carlos Hernández",
-         "Image": "https://miro.medium.com/v2/resize:fit:4800/format:webp/1*gQzkQ3uJ0SwJL51t16bivw.jpeg",
-         "Stars": 4.9},
-        {"Course": "Desarrollo de aplicaciones móviles", "Duration": "Feb-Junio 2025", "Teacher": "Luis Vázquez",
-         "Image": "https://cms.rootstack.com/sites/default/files/inline-images/Captura%20de%20pantalla%202024-01-11%20a%20la%28s%29%2014.33.17.jpg",
-         "Stars": 4.7},
-        {"Course": "Desarrollo de backend", "Duration": "Julio-Diciembre 2025", "Teacher": "Mario García",
-         "Image": "https://www.azulschool.net/wp-content/uploads/2020/05/Databasse-Administrator-1024x709.jpg",
-         "Stars": 4.4}
-    ]
-    return Courses
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
