@@ -3,7 +3,7 @@ from bson import ObjectId
 from database.mongo_config import mongo
 from models.user_models import UserModel
 from werkzeug.security import generate_password_hash, check_password_hash
-from utils import send_password, send_notification
+from api.utils import send_password, send_notification
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -86,7 +86,7 @@ def reset_password():
         return jsonify({"message": "Correo realizado"}), 200
 
 
-@auth_bp.route('notifications', methods=["POST"])
+@auth_bp.route('/notifications', methods=["POST"])
 def notifications():
     data = request.get_json()
     if not data:
