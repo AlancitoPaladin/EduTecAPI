@@ -80,7 +80,9 @@ def reset_password():
     user_collection = mongo.db.users
 
     if user_collection.find_one({'email': data['email']}):
-        send_password()
+        # Hacer una consulta de actualización donde encontrar el email, generar una nueva contraseña
+        # Remplazar la contraseña generada
+        send_password() # Pasar como argumentos el correo y la contraseña generada para enviarla al usuario
         return jsonify({"message": "Correo realizado"}), 200
 
 
