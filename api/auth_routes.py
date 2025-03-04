@@ -80,16 +80,16 @@ def reset_password():
     user_collection = mongo.db.users
 
     if user_collection.find_one({'email': data['email']}):
-
         new_password = "NuevoPassword"  # Replace with actual password generation logic
 
         # Update the user's password in the database
         user_collection.update_one(
             {'email': data['email']},
             {'$set': {'password': generate_password_hash(new_password)}}
-        )# Hacer una consulta de actualización donde encontrar el email, generar una nueva contraseña
+        )  # Hacer una consulta de actualización donde encontrar el email, generar una nueva contraseña
         # Remplazar la contraseña generada
-        send_password(data['email'], new_password) # Pasar como argumentos el correo y la contraseña generada para enviarla al usuario
+        send_password(data['email'],
+                      new_password)  # Pasar como argumentos el correo y la contraseña generada para enviarla al usuario
         return jsonify({"message": "Correo realizado"}), 200
 
 
@@ -104,4 +104,3 @@ def notifications():
     if user_collection.find_one({'email': data['email']}):
         send_notification()
         return jsonify({"message": "Correo realizado"}), 200
-
