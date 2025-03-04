@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 import smtplib
 import os
 
+
 def send_password(email, password):
     smtp = smtplib.SMTP('smtp.gmail.com', 587)
     smtp.ehlo()
@@ -13,8 +14,8 @@ def send_password(email, password):
 
     # Login with your email and password
     smtp.login('edutecteam@gmail.com', 'zhev jmly rpqi aisb')
-    def message(subject = "Password Recovery", text = " "):
 
+    def message(subject="Password Recovery", text=" "):
         msg = MIMEMultipart()
 
         msg['Subject'] = subject
