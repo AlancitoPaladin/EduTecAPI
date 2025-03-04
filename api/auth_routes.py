@@ -43,12 +43,12 @@ def register():
         return jsonify({"error": "No se recibieron datos en formato JSON"}), 400
 
     name = data.get('name')
-    last_name = data.get('last_name')
+    lastName = data.get('lastName')
     email = data.get('email')
     password = data.get('password')
     role = data.get('role')
 
-    if not name or not last_name or not email or not password or not role:
+    if not name or not lastName or not email or not password or not role:
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
     user_collection = mongo.db.users
@@ -60,7 +60,7 @@ def register():
 
     user = {
         'name': name,
-        'last_name': last_name,
+        'last_name': lastName,
         'email': email,
         'password': hashed_password,
         'role': role
