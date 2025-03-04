@@ -18,15 +18,15 @@ def login():
     password = data.get('password')
 
     if not email or not password:
-        return jsonify({"message": "Email and password are required"}), 400
+        return jsonify({"message": "Se requieren el email y contraseña"}), 400
 
     user_collection = mongo.db.users
 
     user = user_collection.find_one({"email": email})
     if not user and check_password_hash(user["password"], password):
-        return jsonify({"message": "Invalid email or password"}), 401
+        return jsonify({"message": "Correo o contraseña inválida"}), 401
     else:
-        return jsonify({"message": "Login successful"}), 200
+        return jsonify({"message": "Ingreso completado"}), 200
 
 
 @auth_bp.route('/logout', methods=["POST"])
@@ -36,23 +36,30 @@ def logout():
 
 @auth_bp.route('/register', methods=["POST"])
 def register():
-    data = request.get_json()
-    email = data.get['email']
-    password = data.get['password']
+    name = data.get('name')
+    last_name = data.get('lastName')
+    email = data.get('email')
+    password = data.get('password')
+    role = data.get('role')
+
+    if not name or not last_name or not email or not password or not role:
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+
     user_collection = mongo.db.users
 
     if user_collection.find_one({'email': email}):
-        return jsonify({"error": "Email already registered"}), 409
+        return jsonify({"error": "Correo ya registrado"}), 409
 
     hashed_password = generate_password_hash(password)
 
     user = {
-        'firstName': data.get['firstName'],
-        'lastName': data.get['lastName'],
-        'middleName': data.get['middleName'],
+        'name': name,
+        'last_name': last_name,
         'email': email,
         'password': hashed_password,
-        'role': data.get['role'],
+        'role': role
     }
+
+    user_collection.insert_one(user)
 
     return jsonify({"message": "Usuario registrado"}), 201

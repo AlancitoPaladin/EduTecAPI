@@ -1,12 +1,16 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-# Pydantic model to define the user data structure
+# Pydantic model es usado para definir la estructura del usuario
 class UserModel(BaseModel):
     name: str
+    last_name: str
     email: EmailStr
-    age: Optional[int] = None
+    password: str
+    role: str
+    profile_picture: Optional[str] = None  # URL de la imagen
+    bio: Optional[str] = None
+    is_active: bool = True
 
     class Config:
-        # This ensures that Pydantic will treat the data as a dictionary
         from_attributes = True

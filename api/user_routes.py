@@ -29,3 +29,8 @@ def courses():
 
     except Exception as e:
         return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
+
+
+@user_bp.route('/insert_course', methods=["GET"])
+def insert_course():
+    pass
