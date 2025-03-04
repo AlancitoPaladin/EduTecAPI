@@ -24,7 +24,7 @@ def login():
     user_collection = mongo.db.users
 
     user = user_collection.find_one({"email": email})
-    if not user and check_password_hash(user["password"], password):
+    if not user or not check_password_hash(user["password"], password):
         return jsonify({"message": "Correo o contraseña inválida"}), 401
     else:
         return jsonify({"message": "Ingreso completado"}), 200
@@ -96,4 +96,4 @@ def notifications():
 
     if user_collection.find_one({'email': data['email']}):
         send_notification()
-        return jsonify({"error": "Correo realizado"}), 409
+        return jsonify({"message": "Correo realizado"}), 200

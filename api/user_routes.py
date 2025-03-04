@@ -34,3 +34,7 @@ def courses():
 @user_bp.route('/insert_course', methods=["GET"])
 def insert_course():
     pass
+
+@user_bp.route('/update_info', methods=["POST"])
+def update_info():
+    pass
