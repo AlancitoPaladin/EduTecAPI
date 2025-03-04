@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from bson import ObjectId
-from database import mongo_config
+from database.mongo_config import mongo
 from models.user_models import UserModel
 from werkzeug.security import generate_password_hash, check_password_hash
+from utils import send_password, send_notification
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -36,8 +37,13 @@ def logout():
 
 @auth_bp.route('/register', methods=["POST"])
 def register():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "No se recibieron datos en formato JSON"}), 400
+
     name = data.get('name')
-    last_name = data.get('lastName')
+    last_name = data.get('last_name')
     email = data.get('email')
     password = data.get('password')
     role = data.get('role')
@@ -63,3 +69,29 @@ def register():
     user_collection.insert_one(user)
 
     return jsonify({"message": "Usuario registrado"}), 201
+
+
+@auth_bp.route('/reset_password', methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se recibieron datos"}), 400
+
+    user_collection = mongo.db.users
+
+    if user_collection.find_one({'email': data['email']}):
+        send_password()
+        return jsonify({"message": "Correo realizado"}), 200
+
+
+@auth_bp.route('notifications', methods=["POST"])
+def notifications():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se recibieron datos"}), 400
+
+    user_collection = mongo.db.users
+
+    if user_collection.find_one({'email': data['email']}):
+        send_notification()
+        return jsonify({"error": "Correo realizado"}), 409

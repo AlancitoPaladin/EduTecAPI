@@ -8,7 +8,7 @@ class UserModel(BaseModel):
     email: EmailStr
     password: str
     role: str
-    profile_picture: Optional[str] = None  # URL de la imagen
+    profile_picture: Optional[str] = None
     bio: Optional[str] = None
     is_active: bool = True
 
