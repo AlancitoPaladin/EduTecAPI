@@ -37,38 +37,33 @@ def logout():
 
 @auth_bp.route('/register', methods=["POST"])
 def register():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    if not data:
-        return jsonify({"error": "No se recibieron datos en formato JSON"}), 400
+        if not data:
+            return jsonify({"error": "No se recibieron datos en formato JSON"}), 400
 
-    name = data.get('name')
-    lastName = data.get('lastName')
-    email = data.get('email')
-    password = data.get('password')
-    role = data.get('role')
+        user_data = UserModel(**data)
 
-    if not name or not lastName or not email or not password or not role:
-        return jsonify({"error": "Faltan campos obligatorios"}), 400
+        user_collection = mongo.db.users
 
-    user_collection = mongo.db.users
 
-    if user_collection.find_one({'email': email}):
-        return jsonify({"error": "Correo ya registrado"}), 409
+        if user_collection.find_one({'email': user_data.email}):
+            return jsonify({"error": "Correo ya registrado"}), 409
 
-    hashed_password = generate_password_hash(password)
+        hashed_password = generate_password_hash(user_data.password)
 
-    user = {
-        'name': name,
-        'last_name': lastName,
-        'email': email,
-        'password': hashed_password,
-        'role': role
-    }
+        user_dict = user_data.model_dump()
+        user_dict["password"] = hashed_password
 
-    user_collection.insert_one(user)
+        user_collection.insert_one(user_dict)
 
-    return jsonify({"message": "Usuario registrado"}), 201
+        return jsonify({"message": "Usuario registrado"}), 201
+
+    except ValidationError as e:
+        return jsonify({"error": "Datos inválidos", "details": e.errors()}), 400
+    except Exception as e:
+        return jsonify({"error": "Error interno del servidor", "details": str(e)}), 500
 
 
 @auth_bp.route('/reset_password', methods=["POST"])
