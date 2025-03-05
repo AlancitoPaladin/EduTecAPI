@@ -4,6 +4,7 @@ from database.mongo_config import mongo
 from models.user_models import UserModel
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.utils import send_password, send_notification
+from pydantic import ValidationError
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -46,7 +47,6 @@ def register():
         user_data = UserModel(**data)
 
         user_collection = mongo.db.users
-
 
         if user_collection.find_one({'email': user_data.email}):
             return jsonify({"error": "Correo ya registrado"}), 409
