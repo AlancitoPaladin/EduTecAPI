@@ -14,21 +14,31 @@ def login():
     data = request.get_json()
 
     if not data:
-        return jsonify({"data": None}), 400
+        return jsonify({"message": "Solicitud inválida"}), 400
 
     email = data.get('email')
     password = data.get('password')
 
     if not email or not password:
-        return jsonify({"message": "Se requieren el email y contraseña"}), 400
+        return jsonify({"message": "Se requieren el email y la contraseña"}), 400
 
     user_collection = mongo.db.users
-
     user = user_collection.find_one({"email": email})
+
     if not user or not check_password_hash(user["password"], password):
         return jsonify({"message": "Correo o contraseña inválida"}), 401
-    else:
-        return jsonify({"message": "Ingreso completado"}), 200
+
+    role = user.get("role", None)
+    if not role:
+        return jsonify({"message": "No se pudo obtener el rol del usuario"}), 500
+
+    user_data = {
+        "id": str(user["_id"]),
+        "email": user["email"],
+        "role": role
+    }
+
+    return jsonify({"message": "Ingreso completado", "user": user_data}), 200
 
 
 @auth_bp.route('/logout', methods=["POST"])
