@@ -12,7 +12,7 @@ def courses():
     courses_collection = mongo.db.courses
 
     projection = {
-        "_id": 0,
+        "_id": 1,
         "course": 1,
         "image": 1,
         "stars": 1,
@@ -38,7 +38,7 @@ def courses():
         return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
 
 
-@user_bp.route('/course/<id>', methods=["GET"])
+@user_bp.route('/course/<id>', methods=["POST"])
 def course(id):
     course = mongo.db.courses.find_one({"_id": ObjectId(id)})
     if not course:
