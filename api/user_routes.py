@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database.mongo_config import mongo
 from bson import ObjectId
+from bson.errors import InvalidId
 
 user_bp = Blueprint("user_bp", __name__)
 
@@ -23,9 +24,11 @@ def courses():
         courses_cursor = courses_collection.find({}, projection) \
             .skip((page - 1) * per_page) \
             .limit(per_page)
+
         courses_list = []
 
         for course in courses_cursor:
+            course["_id"] = str(course["_id"])
             courses_list.append(course)
 
         return jsonify({
@@ -40,12 +43,21 @@ def courses():
 
 @user_bp.route('/course/<id>', methods=["POST"])
 def course(id):
-    course = mongo.db.courses.find_one({"_id": ObjectId(id)})
-    if not course:
-        return jsonify({"message": "Course not found"}), 404
-    else:
+    try:
+        if not ObjectId.is_valid(id):
+            return jsonify({"message": "Invalid course ID"}), 400
+
+        course = mongo.db.courses.find_one({"_id": ObjectId(id)})
+        if not course:
+            return jsonify({"message": "Course not found"}), 404
+
         course["_id"] = str(course["_id"])
         return jsonify(course), 200
+
+    except InvalidId:
+        return jsonify({"message": "Invalid course ID format"}), 400
+    except Exception as e:
+        return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
 
 
 @user_bp.route('/insert_course', methods=["GET"])
