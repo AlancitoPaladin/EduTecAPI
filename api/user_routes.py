@@ -60,7 +60,7 @@ def course(id):
         return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
 
 
-@user_bp.route('/insert_course', methods=["GET"])
+@user_bp.route('/insert_course', methods=["POST"])
 def insert_course():
     pass
 
