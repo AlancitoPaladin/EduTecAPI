@@ -6,6 +6,18 @@ from bson.errors import InvalidId
 user_bp = Blueprint("user_bp", __name__)
 
 
+@user_bp.route('/update_info', methods=["POST"])
+def update_info():
+    pass
+
+
+@user_bp.route('/add_course_student', methods=["POST"])
+def add_course_student():
+    data = request.get_json()
+    course_id = data.get('courseId')
+    student_email = data.get('studentEmail')
+
+
 @user_bp.route('/courses', methods=["GET"])
 def courses():
     page = request.args.get("page", 1, type=int)
@@ -60,11 +72,17 @@ def course(id):
         return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
 
 
-@user_bp.route('/insert_course', methods=["POST"])
-def insert_course():
-    pass
+@user_bp.route('/get_courses_by_student', methods=["POST"])
+def get_courses_by_student():
+    data = request.get_json()
+    user_email = data.get('userEmail')
 
+    if not user_email:
+        return jsonify({"error": "userEmail is required"}), 400
 
-@user_bp.route('/update_info', methods=["POST"])
-def update_info():
-    pass
+    courses = list(mongo.db.courses.find({"teacherEmail": user_email}))
+
+    for course in courses:
+        course['_id'] = str(course['_id'])
+
+    return jsonify(courses), 200
