@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database.mongo_config import mongo
 from bson import ObjectId
+from datetime import datetime
 from bson.errors import InvalidId
 
 user_bp = Blueprint("user_bp", __name__)
@@ -16,6 +17,40 @@ def add_course_student():
     data = request.get_json()
     course_id = data.get('courseId')
     student_email = data.get('studentEmail')
+    state = data.get('state', True)
+
+    if not course_id or not student_email:
+        return jsonify({"message": "Falta courseId o studentEmail"}), 400
+
+    if not ObjectId.is_valid(course_id):
+        return jsonify({"message": "El courseId es inválido"}), 400
+
+    enrollments = mongo.db.enrollments
+
+    try:
+        existing = enrollments.find_one({
+            "courseId": ObjectId(course_id),
+            "studentEmail": student_email
+        })
+        if existing:
+            return jsonify({"message": "El alumno ya está inscrito en este curso"}), 400
+
+        enrollment = {
+            "courseId": ObjectId(course_id),
+            "studentEmail": student_email,
+            "state": state,
+            "enrolledAt": datetime.utcnow()
+        }
+        enrollment_id = enrollments.insert_one(enrollment).inserted_id
+        enrollment["_id"] = str(enrollment_id)
+
+        return jsonify({
+            "message": "Inscripción exitosa",
+            "enrollment": enrollment
+        }), 201
+
+    except Exception as e:
+        return jsonify({"message": "Error al inscribir", "error": str(e)}), 500
 
 
 @user_bp.route('/courses', methods=["GET"])
@@ -80,9 +115,64 @@ def get_courses_by_student():
     if not user_email:
         return jsonify({"error": "userEmail is required"}), 400
 
-    courses = list(mongo.db.courses.find({"teacherEmail": user_email}))
+    try:
+        enrollments = list(mongo.db.enrollments.find({"studentEmail": user_email}))
 
-    for course in courses:
-        course['_id'] = str(course['_id'])
+        course_ids = [enrollment["courseId"] for enrollment in enrollments]
+        course_object_ids = [ObjectId(cid) for cid in course_ids if ObjectId.is_valid(cid)]
 
-    return jsonify(courses), 200
+        projection = {
+            "_id": 1,
+            "course": 1,
+            "image": 1,
+            "stars": 1,
+            "description": 1
+        }
+
+        courses_cursor = mongo.db.courses.find(
+            {"_id": {"$in": course_object_ids}}, projection
+        )
+
+        courses = []
+        for course in courses_cursor:
+            course['_id'] = str(course['_id'])
+            courses.append(course)
+        return jsonify(courses), 200
+
+    except Exception as e:
+        return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
+
+
+@user_bp.route('/news', methods=["GET"])
+def news():
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+    courses_collection = mongo.db.courses
+
+    projection = {
+        "_id": 1,
+        "course": 1,
+        "image": 1,
+        "stars": 1,
+        "description": 1
+    }
+
+    try:
+        latest_courses_cursor = courses_collection.find({}, projection) \
+            .sort("_id", -1) \
+            .skip((page - 1) * per_page) \
+            .limit(per_page)
+
+        latest_courses = []
+        for course in latest_courses_cursor:
+            course["_id"] = str(course["_id"])
+            latest_courses.append(course)
+
+        return jsonify({
+            "courses": latest_courses,
+            "page": page,
+            "per_page": per_page
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500

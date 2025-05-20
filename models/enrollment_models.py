@@ -3,5 +3,6 @@ from typing import Optional
 
 class EnrollmentModel(BaseModel):
     studentEmail: str
-    courseId: str  # ObjectId en string
+    courseId: str
+    state: bool
     enrolledAt: Optional[datetime] = Field(default_factory=datetime.utcnow)
