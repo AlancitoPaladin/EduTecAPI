@@ -5,6 +5,8 @@ from models.user_models import UserModel
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.utils import send_password, send_notification
 from pydantic import ValidationError
+import random
+import string
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -79,21 +81,27 @@ def register():
 @auth_bp.route('/reset_password', methods=["POST"])
 def reset_password():
     data = request.get_json()
-    if not data:
-        return jsonify({"error": "No se recibieron datos"}), 400
+    if not data or "email" not in data:
+        return jsonify({"error": "No se recibió el correo"}), 400
 
+    email = data["email"]
     user_collection = mongo.db.users
+    user = user_collection.find_one({'email': email})
 
-    if user_collection.find_one({'email': data['email']}):
-        new_password = "NuevoPassword"
-        user_collection.update_one(
-            {'email': data['email']},
-            {'$set': {'password': generate_password_hash(new_password)}}
-        )  # Hacer una consulta de actualización donde encontrar el email, generar una nueva contraseña
-        # Remplazar la contraseña generada
-        send_password(data['email'],
-                      new_password)  # Pasar como argumentos el correo y la contraseña generada para enviarla al usuario
-        return jsonify({"message": "Correo realizado"}), 200
+    if not user:
+        return jsonify({"error": "Correo no registrado"}), 404
+
+    new_password = ''.join(random.choices(string.ascii_letters + string.digits + "!@#$%^&*", k=10))
+    hashed_password = generate_password_hash(new_password)
+
+    user_collection.update_one(
+        {'email': email},
+        {'$set': {'password': hashed_password}}
+    )
+
+    send_password(email, new_password)
+
+    return jsonify({"message": "Contraseña restablecida y enviada al correo"}), 200
 
 
 @auth_bp.route('/notifications', methods=["POST"])
