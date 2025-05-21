@@ -22,7 +22,6 @@ MarkupSafe==3.0.2
 mdurl==0.1.2
 ordered-set==4.1.0
 packaging==25.0
-PIL==1.1.7
 pillow==11.2.1
 pillowcase==2.0.0
 pydantic==2.11.3
