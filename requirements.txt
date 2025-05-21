@@ -25,7 +25,7 @@ packaging==25.0
 pillow==11.2.1
 pillowcase==2.0.0
 pydantic==2.11.3
-pydantic_core==2.34.1
+pydantic_core==2.33.1
 Pygments==2.19.1
 PyJWT==2.10.1
 pymongo==4.12.0
