@@ -1,18 +1,15 @@
 import os
-import configparser
-from flask import Flask, request, jsonify
+from flask import Flask
 from api.factory import create_app
-
-# Load configuration file
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.ini")
-config = configparser.ConfigParser()
-config.read(CONFIG_PATH)
+from database.mongo_config import init_db, mongo  # Importa esto de mongo_config.py
 
 app = create_app()
 
-# Configuraciones de la app
+# Configuración adicional si lo necesitas
 app.config["DEBUG"] = True
-app.config["MONGO_URI"] = config.get("PROD", "DB_URI", fallback="mongodb://localhost:27017/EduTecDatabase")
+
+# Inicializa la conexión con MongoDB Atlas
+init_db(app)
 
 if __name__ == "__main__":
     app.run()
