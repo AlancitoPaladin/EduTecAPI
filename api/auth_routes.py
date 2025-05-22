@@ -43,11 +43,6 @@ def login():
     return jsonify({"message": "Ingreso completado", "user": user_data}), 200
 
 
-@auth_bp.route('/logout', methods=["POST"])
-def logout():
-    pass
-
-
 @auth_bp.route('/register', methods=["POST"])
 def register():
     try:
