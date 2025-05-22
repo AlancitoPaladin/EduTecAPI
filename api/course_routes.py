@@ -85,9 +85,9 @@ def create_material(course_id):
     data = request.get_json()
 
     title = data.get('title')
-    description = data.get('description')
+    content = data.get('content')
 
-    if not title or not description:
+    if not title or not content:
         return jsonify({'message': 'Título y contenido son obligatorios'}), 400
 
     try:
@@ -101,7 +101,7 @@ def create_material(course_id):
     material_data = {
         "course_id": course_id,
         "title": title,
-        "description": description,
+        "content": content,
         "created_at": datetime.now(UTC)
     }
 
@@ -169,7 +169,7 @@ def get_course_content(course_id):
     materials_response = [{
         'id': str(m['_id']),
         'title': m['title'],
-        'description': m['description'],
+        'content': m['content'],
     } for m in materials]
 
     return jsonify({
