@@ -16,15 +16,6 @@ class CourseModel(BaseModel):
     level: str
 
 
-class CourseMaterial(BaseModel):
-    course_id: str
-    title: str
-    material_type: str
-    material_data: bytes
-    description: Optional[str] = None
-    created_at: Optional[datetime] = None
-
-
 class Course(BaseModel):
     id: Optional[str] = None
     name: str

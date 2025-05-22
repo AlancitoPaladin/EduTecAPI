@@ -2,10 +2,10 @@ from flask_pymongo import PyMongo
 import os
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde .env
 load_dotenv()
 
 mongo = PyMongo()
+
 
 def init_db(app):
     mongo_uri = os.getenv("MONGO_URI")

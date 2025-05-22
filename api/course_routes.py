@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, send_file
 from database.mongo_config import mongo
-from models.course_models import Course, Announcement, Assignment  # Tus modelos Pydantic
+from models.course_models import Course, Announcement, Assignment
 from datetime import datetime, UTC
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -35,15 +35,12 @@ def download_file(file_id):
 @course_routes.route('/courses/<course_id>', methods=['GET'])
 def get_course_by_id(course_id):
     try:
-        # Valida que el id tenga formato válido
         if not ObjectId.is_valid(course_id):
             return jsonify({"message": "ID de curso inválido"}), 400
 
         course = mongo.db.courses.find_one({"_id": ObjectId(course_id)})
         if not course:
             return jsonify({"message": "Curso no encontrado"}), 404
-
-        # Convierte el ObjectId a string
         course['_id'] = str(course['_id'])
         return jsonify(course), 200
 

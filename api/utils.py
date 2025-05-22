@@ -12,7 +12,6 @@ def send_password(email, password):
     smtp.ehlo()
     smtp.starttls()
 
-    # Login with your email and password
     smtp.login('edutecteam@gmail.com', 'zhev jmly rpqi aisb')
 
     def message(subject="Password Recovery", text=" "):
@@ -33,7 +32,3 @@ def send_password(email, password):
                   to_addrs=email, msg=msg.as_string())
 
     smtp.quit()
-
-
-def send_notification():
-    pass
