@@ -147,7 +147,7 @@ def get_courses_by_student():
 def delete_course_student():
     data = request.get_json()
     course_id = data.get('courseId')
-    student_email = data.get('studentEmail')
+    student_email = data.get('userEmail')
 
     if not course_id or not student_email:
         return jsonify({"error": "Falta courseId o studentEmail"}), 400
