@@ -39,7 +39,7 @@ def add_course_student():
             "courseId": ObjectId(course_id),
             "studentEmail": student_email,
             "state": state,
-            "enrolledAt": datetime.utcnow()
+            "enrolledAt": datetime.now()
         }
         enrollment_id = enrollments.insert_one(enrollment).inserted_id
         enrollment["_id"] = str(enrollment_id)
@@ -138,6 +138,32 @@ def get_courses_by_student():
             course['_id'] = str(course['_id'])
             courses.append(course)
         return jsonify(courses), 200
+
+    except Exception as e:
+        return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
+
+
+@user_bp.route('/delete_course_student', methods=["DELETE"])
+def delete_course_student():
+    data = request.get_json()
+    course_id = data.get('courseId')
+    student_email = data.get('studentEmail')
+
+    if not course_id or not student_email:
+        return jsonify({"error": "Falta courseId o studentEmail"}), 400
+
+    if not ObjectId.is_valid(course_id):
+        return jsonify({"error": "El courseId es inválido"}), 400
+
+    try:
+        result = mongo.db.enrollments.delete_one({
+            "courseId": ObjectId(course_id),
+            "studentEmail": student_email
+        })
+        if result.deleted_count == 0:
+            return jsonify({"message": "No se encontró la inscripción para eliminar"}), 404
+
+        return jsonify({"message": "Inscripción eliminada correctamente"}), 200
 
     except Exception as e:
         return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
