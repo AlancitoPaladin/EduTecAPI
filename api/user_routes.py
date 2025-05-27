@@ -143,7 +143,7 @@ def get_courses_by_student():
         return jsonify({"message": "Ocurrió un error", "error": str(e)}), 500
 
 
-@user_bp.route('/delete_course_student', methods=["DELETE"])
+@user_bp.route('/delete_course_student', methods=["POST"])
 def delete_course_student():
     data = request.get_json()
     course_id = data.get('courseId')
